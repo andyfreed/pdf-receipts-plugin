@@ -57,22 +57,21 @@ class BHFE_PDF_Receipts {
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
         add_filter( 'woocommerce_order_actions', [ $this, 'add_order_view_action' ] );
         add_action( 'woocommerce_order_action_bhfe_generate_receipt', [ $this, 'handle_order_view_action' ] );
+        add_action( 'woocommerce_admin_order_data_after_order_details', [ $this, 'render_single_order_button' ] );
     }
 
     /**
      * Enqueue admin scripts/styles.
      */
     public function enqueue_admin_assets( $hook ) {
-        if ( 'woocommerce_page_wc-orders' !== $hook && 'post.php' !== $hook ) {
-            return;
+        if ( in_array( $hook, [ 'woocommerce_page_wc-orders', 'post.php' ], true ) ) {
+            wp_enqueue_style(
+                'bhfe-pdf-receipts-admin',
+                BHFE_PDF_RECEIPTS_PLUGIN_URL . 'assets/css/admin.css',
+                [],
+                BHFE_PDF_RECEIPTS_VERSION
+            );
         }
-
-        wp_enqueue_style(
-            'bhfe-pdf-receipts-admin',
-            BHFE_PDF_RECEIPTS_PLUGIN_URL . 'assets/css/admin.css',
-            [],
-            BHFE_PDF_RECEIPTS_VERSION
-        );
     }
 
     /**
@@ -83,21 +82,11 @@ class BHFE_PDF_Receipts {
             return $actions;
         }
 
-        $url = wp_nonce_url(
-            add_query_arg(
-                [
-                    'action'    => 'bhfe_generate_receipt',
-                    'order_id'  => $order->get_id(),
-                ],
-                admin_url( 'admin.php' )
-            ),
-            'bhfe_generate_receipt_' . $order->get_id()
-        );
-
         $actions['bhfe_generate_receipt'] = [
-            'url'       => $url,
+            'url'       => $this->get_receipt_action_url( $order ),
             'name'      => __( 'PDF Receipt', 'bhfe-pdf-receipts' ),
-            'action'    => 'view bhfe-pdf-receipt',
+            'action'    => 'bhfe-pdf-receipt',
+            'target'    => '_blank',
         ];
 
         return $actions;
@@ -116,19 +105,35 @@ class BHFE_PDF_Receipts {
      * Handle order view dropdown action.
      */
     public function handle_order_view_action( $order ) {
-        $url = wp_nonce_url(
-            add_query_arg(
-                [
-                    'action'   => 'bhfe_generate_receipt',
-                    'order_id' => $order->get_id(),
-                ],
-                admin_url( 'admin.php' )
-            ),
-            'bhfe_generate_receipt_' . $order->get_id()
-        );
+        $url = $this->get_receipt_action_url( $order );
 
         wp_safe_redirect( $url );
         exit;
+    }
+
+    /**
+     * Render direct PDF button on single order screen.
+     */
+    public function render_single_order_button( $order ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
+            return;
+        }
+
+        if ( ! $order instanceof WC_Order ) {
+            $order = wc_get_order( $order );
+        }
+
+        if ( ! $order ) {
+            return;
+        }
+
+        $url = $this->get_receipt_action_url( $order );
+
+        printf(
+            '<p class="bhfe-order-receipt-actions"><a href="%1$s" class="button button-secondary bhfe-order-receipt-button" target="_blank" rel="noopener">%2$s</a></p>',
+            esc_url( $url ),
+            esc_html__( 'PDF Receipt', 'bhfe-pdf-receipts' )
+        );
     }
 
     /**
@@ -233,6 +238,55 @@ class BHFE_PDF_Receipts {
         }
 
         return '';
+    }
+
+    /**
+     * Get receipt action URL for a given order.
+     *
+     * @param WC_Order|int $order Order object or ID.
+     *
+     * @return string
+     */
+    protected function get_receipt_action_url( $order ) {
+        $order_id = $order instanceof WC_Order ? $order->get_id() : absint( $order );
+
+        return wp_nonce_url(
+            add_query_arg(
+                [
+                    'action'   => 'bhfe_generate_receipt',
+                    'order_id' => $order_id,
+                ],
+                admin_url( 'admin.php' )
+            ),
+            'bhfe_generate_receipt_' . $order_id
+        );
+    }
+
+    /**
+     * Get default logo URL.
+     *
+     * @return string
+     */
+    public function get_default_logo_url() {
+        $logo_url = '';
+
+        $custom_logo_id = get_theme_mod( 'custom_logo' );
+        if ( $custom_logo_id ) {
+            $logo_url = wp_get_attachment_image_url( $custom_logo_id, 'full' );
+        }
+
+        if ( ! $logo_url ) {
+            $email_logo = get_option( 'woocommerce_email_header_image' );
+            if ( $email_logo ) {
+                $logo_url = esc_url_raw( $email_logo );
+            }
+        }
+
+        if ( ! $logo_url ) {
+            $logo_url = BHFE_PDF_RECEIPTS_PLUGIN_URL . 'assets/images/logo.svg';
+        }
+
+        return $logo_url;
     }
 }
 

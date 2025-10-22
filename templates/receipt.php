@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-$logo_url = apply_filters( 'bhfe_pdf_receipts_logo_url', BHFE_PDF_RECEIPTS_PLUGIN_URL . 'assets/images/logo.svg', $order );
+$logo_url = apply_filters( 'bhfe_pdf_receipts_logo_url', BHFE_PDF_Receipts::instance()->get_default_logo_url(), $order );
 $company_name = apply_filters( 'bhfe_pdf_receipts_company_name', get_bloginfo( 'name' ), $order );
 $company_address = apply_filters( 'bhfe_pdf_receipts_company_address', '', $order );
 
