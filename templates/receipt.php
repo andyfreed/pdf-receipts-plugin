@@ -70,9 +70,9 @@ $has_shipping = ! empty( $shipping_address );
                 <?php endif; ?>
             </div>
             <div class="bhfe-receipt__meta-column">
-                <p><strong><?php esc_html_e( 'Payment Date', 'bhfe-pdf-receipts' ); ?></strong><br><?php echo esc_html( wc_format_datetime( $payment_date, get_option( 'date_format' ) ) ); ?></p>
-                <p><strong><?php esc_html_e( 'Payment Method', 'bhfe-pdf-receipts' ); ?></strong><br><?php echo esc_html( $payment_method . ( $card_last4 ? sprintf( ' ending in %s', $card_last4 ) : '' ) ); ?></p>
-                <p><strong><?php esc_html_e( 'Order Number', 'bhfe-pdf-receipts' ); ?></strong><br><?php echo esc_html( $order->get_order_number() ); ?></p>
+                <p><strong><?php esc_html_e( 'Payment Date', 'bhfe-pdf-receipts' ); ?></strong><span><?php echo esc_html( wc_format_datetime( $payment_date, get_option( 'date_format' ) ) ); ?></span></p>
+                <p><strong><?php esc_html_e( 'Payment Method', 'bhfe-pdf-receipts' ); ?></strong><span><?php echo esc_html( $payment_method . ( $card_last4 ? sprintf( ' ending in %s', $card_last4 ) : '' ) ); ?></span></p>
+                <p><strong><?php esc_html_e( 'Order Number', 'bhfe-pdf-receipts' ); ?></strong><span><?php echo esc_html( $order->get_order_number() ); ?></span></p>
             </div>
         </section>
 

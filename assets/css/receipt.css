@@ -27,13 +27,23 @@ body {
 
 .bhfe-receipt__meta {
     display: flex;
-    flex-wrap: wrap;
-    gap: 40px;
+    justify-content: space-between;
+    gap: 60px;
     margin-bottom: 30px;
 }
 
 .bhfe-receipt__meta-column {
-    flex: 1 1 220px;
+    flex: 1;
+}
+
+.bhfe-receipt__meta-column p {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.bhfe-receipt__meta-column p span {
+    text-align: right;
 }
 
 .bhfe-receipt__meta-column {
