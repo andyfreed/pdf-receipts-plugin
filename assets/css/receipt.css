@@ -24,11 +24,16 @@ body {
     max-width: 250px;
 }
 
+
 .bhfe-receipt__meta {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
     margin-bottom: 30px;
+}
+
+.bhfe-receipt__meta-column {
+    flex: 1 1 220px;
 }
 
 .bhfe-receipt__meta-column {
@@ -62,13 +67,7 @@ body {
 
 .bhfe-receipt__items th:nth-child(2),
 .bhfe-receipt__items td:nth-child(2) {
-    width: 80px;
-    text-align: center;
-}
-
-.bhfe-receipt__items th:nth-child(3),
-.bhfe-receipt__items td:nth-child(3) {
-    width: 150px;
+    width: 180px;
     text-align: right;
     white-space: nowrap;
 }
