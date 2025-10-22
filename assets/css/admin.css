@@ -1,0 +1,5 @@
+.woocommerce-page .wp-list-table .column-wc_actions .bhfe-pdf-receipt::before {
+    content: '\f1c1';
+    font-family: Dashicons;
+}
+

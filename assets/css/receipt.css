@@ -1,0 +1,74 @@
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #000;
+    margin: 0;
+    padding: 0;
+}
+
+.bhfe-receipt {
+    padding: 40px;
+    font-size: 14px;
+}
+
+.bhfe-receipt__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.bhfe-receipt__logo {
+    max-width: 250px;
+}
+
+.bhfe-receipt__meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.bhfe-receipt__meta h3 {
+    margin: 0 0 10px;
+}
+
+.bhfe-receipt__meta p {
+    margin: 4px 0;
+}
+
+.bhfe-receipt__items,
+.bhfe-receipt__totals {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.bhfe-receipt__items th,
+.bhfe-receipt__items td {
+    border-bottom: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+.bhfe-receipt__items thead tr {
+    background: #000;
+    color: #fff;
+}
+
+.bhfe-receipt__totals th,
+.bhfe-receipt__totals td {
+    padding: 8px;
+    text-align: left;
+}
+
+.bhfe-receipt__totals th {
+    font-weight: 600;
+}
+
+.bhfe-receipt__total td {
+    font-weight: 700;
+}
+
+.bhfe-receipt__totals tr:not(.bhfe-receipt__total) {
+    border-bottom: 1px solid #ddd;
+}
+
