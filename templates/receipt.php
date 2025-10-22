@@ -32,6 +32,12 @@ if ( file_exists( $receipt_css_path ) ) {
     $receipt_css = file_get_contents( $receipt_css_path );
 }
 
+$meta_class = 'bhfe-receipt__meta';
+
+if ( ! $shipping_address ) {
+    $meta_class .= ' bhfe-receipt__meta-columns-2';
+}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -58,19 +64,21 @@ if ( file_exists( $receipt_css_path ) ) {
             </div>
         </header>
 
-        <section class="bhfe-receipt__meta">
-            <div>
+        <section class="<?php echo esc_attr( trim( $meta_class ) ); ?>">
+            <div class="bhfe-receipt__meta-column">
                 <h3><?php esc_html_e( 'Receipt', 'bhfe-pdf-receipts' ); ?></h3>
                 <p><?php echo wp_kses_post( $billing_address ); ?></p>
-                <?php if ( $shipping_address ) : ?>
+            </div>
+            <?php if ( $shipping_address ) : ?>
+                <div class="bhfe-receipt__meta-column">
                     <h4><?php esc_html_e( 'Shipping Address', 'bhfe-pdf-receipts' ); ?></h4>
                     <p><?php echo wp_kses_post( $shipping_address ); ?></p>
-                <?php endif; ?>
-            </div>
-            <div class="bhfe-receipt__meta-right">
-                <p><strong><?php esc_html_e( 'Payment Date:', 'bhfe-pdf-receipts' ); ?></strong> <?php echo esc_html( wc_format_datetime( $payment_date, get_option( 'date_format' ) ) ); ?></p>
-                <p><strong><?php esc_html_e( 'Payment Method:', 'bhfe-pdf-receipts' ); ?></strong> <?php echo esc_html( $payment_method . ( $card_last4 ? sprintf( ' ending in %s', $card_last4 ) : '' ) ); ?></p>
-                <p><strong><?php esc_html_e( 'Order Number:', 'bhfe-pdf-receipts' ); ?></strong> <?php echo esc_html( $order->get_order_number() ); ?></p>
+                </div>
+            <?php endif; ?>
+            <div class="bhfe-receipt__meta-column">
+                <p><strong><?php esc_html_e( 'Payment Date:', 'bhfe-pdf-receipts' ); ?></strong><br><?php echo esc_html( wc_format_datetime( $payment_date, get_option( 'date_format' ) ) ); ?></p>
+                <p><strong><?php esc_html_e( 'Payment Method:', 'bhfe-pdf-receipts' ); ?></strong><br><?php echo esc_html( $payment_method . ( $card_last4 ? sprintf( ' ending in %s', $card_last4 ) : '' ) ); ?></p>
+                <p><strong><?php esc_html_e( 'Order Number:', 'bhfe-pdf-receipts' ); ?></strong><br><?php echo esc_html( $order->get_order_number() ); ?></p>
             </div>
         </section>
 
