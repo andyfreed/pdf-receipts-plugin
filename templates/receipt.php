@@ -94,6 +94,10 @@ if ( file_exists( $receipt_css_path ) ) {
         </table>
 
         <table class="bhfe-receipt__totals">
+            <colgroup>
+                <col class="bhfe-receipt__totals-label-col" />
+                <col class="bhfe-receipt__totals-amount-col" />
+            </colgroup>
             <tbody>
                 <tr>
                     <th><?php esc_html_e( 'Subtotal', 'bhfe-pdf-receipts' ); ?></th>

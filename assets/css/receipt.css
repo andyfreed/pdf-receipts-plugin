@@ -57,7 +57,7 @@ body {
 
 .bhfe-receipt__items th:nth-child(3),
 .bhfe-receipt__items td:nth-child(3) {
-    width: 140px;
+    width: 150px;
     text-align: right;
     white-space: nowrap;
 }
@@ -69,7 +69,7 @@ body {
 
 
 .bhfe-receipt__totals {
-    width: 220px;
+    width: 260px;
     margin-left: auto;
     border-top: 4px solid #000;
 }
@@ -83,6 +83,16 @@ body {
 .bhfe-receipt__totals th {
     font-weight: 600;
     text-align: left;
+}
+
+
+.bhfe-receipt__totals-label-col {
+    width: 70%;
+}
+
+.bhfe-receipt__totals-amount-col {
+    width: 30%;
+    text-align: right;
 }
 
 .bhfe-receipt__total td {
