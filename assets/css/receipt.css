@@ -113,8 +113,8 @@ body {
 
 
 .bhfe-receipt__totals {
-    width: 360px;
-    margin-left: auto;
+    width: 100%;
+    margin-left: 0;
     border-top: 4px solid #000;
 }
 
