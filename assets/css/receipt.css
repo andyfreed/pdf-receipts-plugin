@@ -84,6 +84,12 @@ body {
     text-align: left;
 }
 
+.bhfe-receipt__course-number {
+    font-size: 12px;
+    margin-top: 4px;
+    color: #555;
+}
+
 .bhfe-receipt__items th:nth-child(2),
 .bhfe-receipt__items td:nth-child(2) {
     width: 220px;

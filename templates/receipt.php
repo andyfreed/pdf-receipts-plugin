@@ -52,12 +52,11 @@ $has_shipping = ! empty( $shipping_address );
             <?php if ( $logo_url ) : ?>
                 <img src="<?php echo esc_url( $logo_url ); ?>" alt="<?php echo esc_attr( $company_name ); ?>" class="bhfe-receipt__logo" />
             <?php endif; ?>
-            <div class="bhfe-receipt__company">
-                <h2><?php echo esc_html( $company_name ); ?></h2>
-                <?php if ( $company_address ) : ?>
+            <?php if ( $company_address ) : ?>
+                <div class="bhfe-receipt__company">
                     <p><?php echo wp_kses_post( nl2br( $company_address ) ); ?></p>
-                <?php endif; ?>
-            </div>
+                </div>
+            <?php endif; ?>
         </header>
 
         <section class="bhfe-receipt__meta">
@@ -100,8 +99,37 @@ $has_shipping = ! empty( $shipping_address );
             </thead>
             <tbody>
                 <?php foreach ( $order->get_items() as $item_id => $item ) : ?>
+                    <?php
+                    $course_number = '';
+
+                    $item_course_numbers = $item->get_meta( 'course_numbers', true );
+                    if ( is_array( $item_course_numbers ) ) {
+                        $course_number = isset( $item_course_numbers['global'] ) ? $item_course_numbers['global'] : '';
+                    } elseif ( is_scalar( $item_course_numbers ) ) {
+                        $course_number = (string) $item_course_numbers;
+                    }
+
+                    if ( '' === $course_number ) {
+                        $product = $item->get_product();
+                        if ( $product ) {
+                            $product_course_numbers = get_post_meta( $product->get_id(), 'course_numbers', true );
+                            if ( is_array( $product_course_numbers ) ) {
+                                $course_number = isset( $product_course_numbers['global'] ) ? $product_course_numbers['global'] : '';
+                            } elseif ( is_scalar( $product_course_numbers ) ) {
+                                $course_number = (string) $product_course_numbers;
+                            }
+                        }
+                    }
+                    ?>
                     <tr>
-                        <td><?php echo esc_html( $item->get_name() ); ?></td>
+                        <td>
+                            <?php echo esc_html( $item->get_name() ); ?>
+                            <?php if ( $course_number ) : ?>
+                                <div class="bhfe-receipt__course-number">
+                                    <?php printf( esc_html__( 'Course #: %s', 'bhfe-pdf-receipts' ), esc_html( $course_number ) ); ?>
+                                </div>
+                            <?php endif; ?>
+                        </td>
                         <td><?php echo wp_kses_post( wc_price( $item->get_total() + $item->get_total_tax(), $currency_args ) ); ?></td>
                     </tr>
                 <?php endforeach; ?>
