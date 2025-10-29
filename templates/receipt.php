@@ -34,6 +34,64 @@ if ( file_exists( $receipt_css_path ) ) {
 
 $has_shipping = ! empty( $shipping_address );
 
+if ( ! function_exists( 'bhfe_pdf_receipts_normalize_course_number' ) ) {
+    function bhfe_pdf_receipts_normalize_course_number( $value ) {
+        if ( is_bool( $value ) ) {
+            return '';
+        }
+
+        if ( is_scalar( $value ) ) {
+            $candidate = trim( (string) $value );
+
+            if ( '' !== $candidate && strlen( $candidate ) >= 3 && preg_match( '/\d/', $candidate ) ) {
+                return $candidate;
+            }
+        }
+
+        return '';
+    }
+}
+
+if ( ! function_exists( 'bhfe_pdf_receipts_extract_global_course_number' ) ) {
+    function bhfe_pdf_receipts_extract_global_course_number( $value ) {
+        if ( is_array( $value ) ) {
+            foreach ( $value as $key => $nested_value ) {
+                if ( is_string( $key ) && 'course_numbers' === strtolower( $key ) ) {
+                    $candidate = bhfe_pdf_receipts_extract_global_course_number( $nested_value );
+
+                    if ( '' !== $candidate ) {
+                        return $candidate;
+                    }
+                }
+            }
+
+            foreach ( $value as $key => $nested_value ) {
+                if ( is_string( $key ) && 'global' === strtolower( $key ) ) {
+                    $candidate = bhfe_pdf_receipts_normalize_course_number( $nested_value );
+
+                    if ( '' !== $candidate ) {
+                        return $candidate;
+                    }
+                }
+            }
+
+            foreach ( $value as $nested_value ) {
+                if ( is_array( $nested_value ) || is_object( $nested_value ) ) {
+                    $candidate = bhfe_pdf_receipts_extract_global_course_number( $nested_value );
+
+                    if ( '' !== $candidate ) {
+                        return $candidate;
+                    }
+                }
+            }
+        } elseif ( is_object( $value ) ) {
+            return bhfe_pdf_receipts_extract_global_course_number( (array) $value );
+        }
+
+        return bhfe_pdf_receipts_normalize_course_number( $value );
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -100,24 +158,55 @@ $has_shipping = ! empty( $shipping_address );
             <tbody>
                 <?php foreach ( $order->get_items() as $item_id => $item ) : ?>
                     <?php
-                    $course_number = '';
+                    $course_number_sources = [
+                        $item->get_meta( 'course_numbers', true ),
+                        $item->get_meta( '_course_numbers', true ),
+                        $item->get_meta( '_sfwd-courses', true ),
+                        $item->get_meta( '_sfwd_course', true ),
+                        $item->get_meta( '_ld_course', true ),
+                        $item->get_meta( '_ld_course_info', true ),
+                    ];
 
-                    $item_course_numbers = $item->get_meta( 'course_numbers', true );
-                    if ( is_array( $item_course_numbers ) ) {
-                        $course_number = isset( $item_course_numbers['global'] ) ? $item_course_numbers['global'] : '';
-                    } elseif ( is_scalar( $item_course_numbers ) ) {
-                        $course_number = (string) $item_course_numbers;
+                    foreach ( $item->get_meta_data() as $meta_data ) {
+                        $value = $meta_data->get_data()['value'];
+
+                        if ( is_array( $value ) || is_object( $value ) ) {
+                            $course_number_sources[] = $value;
+                        }
                     }
 
-                    if ( '' === $course_number ) {
-                        $product = $item->get_product();
-                        if ( $product ) {
-                            $product_course_numbers = get_post_meta( $product->get_id(), 'course_numbers', true );
-                            if ( is_array( $product_course_numbers ) ) {
-                                $course_number = isset( $product_course_numbers['global'] ) ? $product_course_numbers['global'] : '';
-                            } elseif ( is_scalar( $product_course_numbers ) ) {
-                                $course_number = (string) $product_course_numbers;
+                    $product = $item->get_product();
+
+                    if ( $product ) {
+                        $course_number_sources[] = $product->get_meta( 'course_numbers', true );
+                        $course_number_sources[] = get_post_meta( $product->get_id(), 'course_numbers', true );
+                        $course_number_sources[] = get_post_meta( $product->get_id(), '_sfwd-courses', true );
+                        $course_number_sources[] = $product->get_meta( '_sfwd-courses', true );
+                        $course_number_sources[] = $product->get_meta( '_sfwd_course', true );
+                        $course_number_sources[] = $product->get_meta( '_ld_course', true );
+                        $course_number_sources[] = $product->get_meta( '_ld_course_info', true );
+
+                        foreach ( $product->get_meta_data() as $meta_data ) {
+                            $value = $meta_data->get_data()['value'];
+
+                            if ( is_array( $value ) || is_object( $value ) ) {
+                                $course_number_sources[] = $value;
                             }
+                        }
+                    }
+
+                    $course_number = '';
+
+                    foreach ( $course_number_sources as $source ) {
+                        if ( null === $source || '' === $source ) {
+                            continue;
+                        }
+
+                        $candidate = bhfe_pdf_receipts_extract_global_course_number( $source );
+
+                        if ( '' !== $candidate ) {
+                            $course_number = $candidate;
+                            break;
                         }
                     }
                     ?>
