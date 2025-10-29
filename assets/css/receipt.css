@@ -77,6 +77,10 @@ body {
     margin-bottom: 20px;
 }
 
+.bhfe-receipt__items {
+    table-layout: fixed;
+}
+
 .bhfe-receipt__items th,
 .bhfe-receipt__items td {
     border-bottom: 1px solid #ddd;
@@ -90,9 +94,14 @@ body {
     color: #555;
 }
 
+.bhfe-receipt__items th:first-child,
+.bhfe-receipt__items td:first-child {
+    width: 75%;
+}
+
 .bhfe-receipt__items th:nth-child(2),
 .bhfe-receipt__items td:nth-child(2) {
-    width: 360px;
+    width: 25%;
     text-align: right;
     white-space: nowrap;
 }
@@ -104,7 +113,7 @@ body {
 
 
 .bhfe-receipt__totals {
-    width: 320px;
+    width: 360px;
     margin-left: auto;
     border-top: 4px solid #000;
 }
@@ -122,11 +131,11 @@ body {
 
 
 .bhfe-receipt__totals-label-col {
-    width: 70%;
+    width: 60%;
 }
 
 .bhfe-receipt__totals-amount-col {
-    width: 30%;
+    width: 40%;
     text-align: right;
     white-space: nowrap;
 }
