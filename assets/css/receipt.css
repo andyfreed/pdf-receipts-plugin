@@ -133,16 +133,16 @@ body {
 .bhfe-receipt__totals th:first-child,
 .bhfe-receipt__totals td:first-child {
     box-sizing: border-box;
-    padding-left: 40%;
+    padding-left: 60%;
 }
 
 
 .bhfe-receipt__totals-label-col {
-    width: 60%;
+    width: 70%;
 }
 
 .bhfe-receipt__totals-amount-col {
-    width: 40%;
+    width: 30%;
     text-align: right;
     white-space: nowrap;
 }
