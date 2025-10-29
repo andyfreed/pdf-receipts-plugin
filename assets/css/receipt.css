@@ -130,6 +130,12 @@ body {
     text-align: left;
 }
 
+.bhfe-receipt__totals th:first-child,
+.bhfe-receipt__totals td:first-child {
+    box-sizing: border-box;
+    padding-left: 40%;
+}
+
 
 .bhfe-receipt__totals-label-col {
     width: 60%;
