@@ -136,7 +136,7 @@ body {
 .bhfe-receipt__totals th:first-child,
 .bhfe-receipt__totals td:first-child {
     box-sizing: border-box;
-    padding-left: 60%;
+    padding-left: 20%;
 }
 
 
