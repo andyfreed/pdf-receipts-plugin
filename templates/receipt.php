@@ -92,6 +92,150 @@ if ( ! function_exists( 'bhfe_pdf_receipts_extract_global_course_number' ) ) {
     }
 }
 
+if ( ! function_exists( 'bhfe_pdf_receipts_collect_course_numbers' ) ) {
+    function bhfe_pdf_receipts_collect_course_numbers( WC_Order_Item_Product $item ) {
+        $collected_numbers = [];
+
+        $course_number_module_available = function_exists( 'flms_is_module_active' ) && flms_is_module_active( 'course_numbers' ) && class_exists( 'FLMS_Module_Course_Numbers' );
+
+        if ( $course_number_module_available ) {
+            $module = new FLMS_Module_Course_Numbers();
+            $course_refs = [];
+
+            $variation_id = $item->get_variation_id();
+
+            if ( $variation_id ) {
+                $variation_courses = get_post_meta( $variation_id, 'flms_woocommerce_variable_course_ids', true );
+
+                if ( ! empty( $variation_courses ) ) {
+                    $course_refs = array_merge( $course_refs, is_array( $variation_courses ) ? $variation_courses : [ $variation_courses ] );
+                }
+            }
+
+            $product = $item->get_product();
+
+            if ( $product ) {
+                $product_id = $product->get_id();
+
+                $simple_courses = get_post_meta( $product_id, 'flms_woocommerce_simple_course_ids', true );
+                if ( ! empty( $simple_courses ) ) {
+                    $course_refs = array_merge( $course_refs, is_array( $simple_courses ) ? $simple_courses : [ $simple_courses ] );
+                }
+
+                $primary_course_ids = get_post_meta( $product_id, 'flms_woocommerce_product_id', true );
+
+                if ( ! empty( $primary_course_ids ) ) {
+                    if ( is_array( $primary_course_ids ) ) {
+                        $course_refs = array_merge( $course_refs, $primary_course_ids );
+                    } else {
+                        $course_refs[] = $primary_course_ids;
+                    }
+                }
+            }
+
+            foreach ( $course_refs as $course_ref ) {
+                if ( empty( $course_ref ) ) {
+                    continue;
+                }
+
+                $course_id = '';
+                $course_version = '';
+
+                if ( is_scalar( $course_ref ) ) {
+                    $course_ref = trim( (string) $course_ref );
+
+                    if ( '' === $course_ref ) {
+                        continue;
+                    }
+
+                    $parts = explode( ':', $course_ref );
+                    $course_id = trim( $parts[0] ?? '' );
+                    $course_version = isset( $parts[1] ) ? trim( $parts[1] ) : '';
+                } elseif ( is_array( $course_ref ) ) {
+                    $course_id = isset( $course_ref['course_id'] ) ? $course_ref['course_id'] : ( $course_ref[0] ?? '' );
+                    $course_version = isset( $course_ref['course_version'] ) ? $course_ref['course_version'] : ( $course_ref[1] ?? '' );
+                } elseif ( is_object( $course_ref ) ) {
+                    $course_id = isset( $course_ref->course_id ) ? $course_ref->course_id : '';
+                    $course_version = isset( $course_ref->course_version ) ? $course_ref->course_version : '';
+                }
+
+                if ( ! $course_id ) {
+                    continue;
+                }
+
+                $raw_number = $module->get_course_number( $course_id, $course_version );
+                $normalized = bhfe_pdf_receipts_normalize_course_number( $raw_number );
+
+                if ( '' !== $normalized ) {
+                    $collected_numbers[] = $normalized;
+                }
+            }
+        }
+
+        if ( empty( $collected_numbers ) ) {
+            $course_number_sources = [
+                $item->get_meta( 'course_numbers', true ),
+                $item->get_meta( '_course_numbers', true ),
+                $item->get_meta( '_sfwd-courses', true ),
+                $item->get_meta( '_sfwd_course', true ),
+                $item->get_meta( '_ld_course', true ),
+                $item->get_meta( '_ld_course_info', true ),
+            ];
+
+            foreach ( $item->get_meta_data() as $meta_data ) {
+                $value = $meta_data->get_data()['value'];
+
+                if ( is_array( $value ) || is_object( $value ) ) {
+                    $course_number_sources[] = $value;
+                }
+            }
+
+            $product = $item->get_product();
+
+            if ( $product ) {
+                $course_number_sources[] = $product->get_meta( 'course_numbers', true );
+                $course_number_sources[] = get_post_meta( $product->get_id(), 'course_numbers', true );
+                $course_number_sources[] = get_post_meta( $product->get_id(), '_sfwd-courses', true );
+                $course_number_sources[] = $product->get_meta( '_sfwd-courses', true );
+                $course_number_sources[] = $product->get_meta( '_sfwd_course', true );
+                $course_number_sources[] = $product->get_meta( '_ld_course', true );
+                $course_number_sources[] = $product->get_meta( '_ld_course_info', true );
+
+                foreach ( $product->get_meta_data() as $meta_data ) {
+                    $value = $meta_data->get_data()['value'];
+
+                    if ( is_array( $value ) || is_object( $value ) ) {
+                        $course_number_sources[] = $value;
+                    }
+                }
+            }
+
+            foreach ( $course_number_sources as $source ) {
+                if ( null === $source || '' === $source ) {
+                    continue;
+                }
+
+                $candidate = bhfe_pdf_receipts_extract_global_course_number( $source );
+
+                if ( '' !== $candidate ) {
+                    $collected_numbers[] = $candidate;
+                }
+            }
+        }
+
+        if ( empty( $collected_numbers ) ) {
+            return [];
+        }
+
+        $collected_numbers = array_map( 'trim', $collected_numbers );
+        $collected_numbers = array_filter( $collected_numbers, static function ( $number ) {
+            return '' !== $number;
+        } );
+
+        return array_values( array_unique( $collected_numbers ) );
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -161,57 +305,8 @@ if ( ! function_exists( 'bhfe_pdf_receipts_extract_global_course_number' ) ) {
             <tbody>
                 <?php foreach ( $order->get_items() as $item_id => $item ) : ?>
                     <?php
-                    $course_number_sources = [
-                        $item->get_meta( 'course_numbers', true ),
-                        $item->get_meta( '_course_numbers', true ),
-                        $item->get_meta( '_sfwd-courses', true ),
-                        $item->get_meta( '_sfwd_course', true ),
-                        $item->get_meta( '_ld_course', true ),
-                        $item->get_meta( '_ld_course_info', true ),
-                    ];
-
-                    foreach ( $item->get_meta_data() as $meta_data ) {
-                        $value = $meta_data->get_data()['value'];
-
-                        if ( is_array( $value ) || is_object( $value ) ) {
-                            $course_number_sources[] = $value;
-                        }
-                    }
-
-                    $product = $item->get_product();
-
-                    if ( $product ) {
-                        $course_number_sources[] = $product->get_meta( 'course_numbers', true );
-                        $course_number_sources[] = get_post_meta( $product->get_id(), 'course_numbers', true );
-                        $course_number_sources[] = get_post_meta( $product->get_id(), '_sfwd-courses', true );
-                        $course_number_sources[] = $product->get_meta( '_sfwd-courses', true );
-                        $course_number_sources[] = $product->get_meta( '_sfwd_course', true );
-                        $course_number_sources[] = $product->get_meta( '_ld_course', true );
-                        $course_number_sources[] = $product->get_meta( '_ld_course_info', true );
-
-                        foreach ( $product->get_meta_data() as $meta_data ) {
-                            $value = $meta_data->get_data()['value'];
-
-                            if ( is_array( $value ) || is_object( $value ) ) {
-                                $course_number_sources[] = $value;
-                            }
-                        }
-                    }
-
-                    $course_number = '';
-
-                    foreach ( $course_number_sources as $source ) {
-                        if ( null === $source || '' === $source ) {
-                            continue;
-                        }
-
-                        $candidate = bhfe_pdf_receipts_extract_global_course_number( $source );
-
-                        if ( '' !== $candidate ) {
-                            $course_number = $candidate;
-                            break;
-                        }
-                    }
+                    $collected_course_numbers = bhfe_pdf_receipts_collect_course_numbers( $item );
+                    $course_number = $collected_course_numbers ? reset( $collected_course_numbers ) : '';
                     ?>
                     <tr>
                         <td>
