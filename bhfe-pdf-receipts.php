@@ -3,7 +3,7 @@
  * Plugin Name: BHFE PDF Receipts
  * Description: Generate branded PDF receipts for WooCommerce orders from the admin dashboard.
  * Version: 0.1.0
- * Author: Beacon Hill Financial Educators
+ * Author: Skynet
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
