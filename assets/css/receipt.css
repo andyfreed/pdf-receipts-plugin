@@ -39,7 +39,8 @@ body {
 
 .bhfe-receipt__meta-cell {
     vertical-align: top;
-    padding-right: 40px;
+    padding-right: 20px;
+    width: 33.33%;
 }
 
 .bhfe-receipt__meta-details {
@@ -52,6 +53,10 @@ body {
     padding: 2px 0;
     text-align: left;
     white-space: nowrap;
+}
+
+.bhfe-receipt__meta-cell--details {
+    padding-right: 0;
 }
 
 .bhfe-receipt__meta-details th {

@@ -280,6 +280,15 @@ if ( ! function_exists( 'bhfe_pdf_receipts_collect_course_numbers' ) ) {
                         <?php endif; ?>
                     </td>
                     <td class="bhfe-receipt__meta-cell">
+                        <?php if ( $has_shipping ) : ?>
+                            <h4><?php esc_html_e( 'Shipping Address', 'bhfe-pdf-receipts' ); ?></h4>
+                            <p><?php echo wp_kses_post( $shipping_address ); ?></p>
+                        <?php else : ?>
+                            <h4><?php esc_html_e( 'Shipping Address', 'bhfe-pdf-receipts' ); ?></h4>
+                            <p><?php esc_html_e( 'N/A', 'bhfe-pdf-receipts' ); ?></p>
+                        <?php endif; ?>
+                    </td>
+                    <td class="bhfe-receipt__meta-cell bhfe-receipt__meta-cell--details">
                         <table class="bhfe-receipt__meta-details">
                             <tr>
                                 <th><?php esc_html_e( 'Payment Date', 'bhfe-pdf-receipts' ); ?></th>
@@ -287,7 +296,15 @@ if ( ! function_exists( 'bhfe_pdf_receipts_collect_course_numbers' ) ) {
                             </tr>
                             <tr>
                                 <th><?php esc_html_e( 'Payment Method', 'bhfe-pdf-receipts' ); ?></th>
-                                <td><?php echo esc_html( $payment_method . ( $card_last4 ? sprintf( ' ending in %s', $card_last4 ) : '' ) ); ?></td>
+                                <td>
+                                    <?php
+                                    if ( $card_last4 ) {
+                                        echo esc_html( sprintf( '%s XX%s', $payment_method, $card_last4 ) );
+                                    } else {
+                                        echo esc_html( $payment_method );
+                                    }
+                                    ?>
+                                </td>
                             </tr>
                             <tr>
                                 <th><?php esc_html_e( 'Order Number', 'bhfe-pdf-receipts' ); ?></th>
