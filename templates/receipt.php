@@ -266,17 +266,13 @@ if ( ! function_exists( 'bhfe_pdf_receipts_collect_course_numbers' ) ) {
         </header>
 
         <section class="bhfe-receipt__meta">
+            <h3><?php esc_html_e( 'Receipt', 'bhfe-pdf-receipts' ); ?></h3>
             <table class="bhfe-receipt__meta-table">
                 <tr>
                     <td class="bhfe-receipt__meta-cell">
-                        <h3><?php esc_html_e( 'Receipt', 'bhfe-pdf-receipts' ); ?></h3>
                         <?php if ( $billing_address ) : ?>
                             <h4><?php esc_html_e( 'Billing Address', 'bhfe-pdf-receipts' ); ?></h4>
                             <p><?php echo wp_kses_post( $billing_address ); ?></p>
-                        <?php endif; ?>
-                        <?php if ( $has_shipping ) : ?>
-                            <h4><?php esc_html_e( 'Shipping Address', 'bhfe-pdf-receipts' ); ?></h4>
-                            <p><?php echo wp_kses_post( $shipping_address ); ?></p>
                         <?php endif; ?>
                     </td>
                     <td class="bhfe-receipt__meta-cell">
