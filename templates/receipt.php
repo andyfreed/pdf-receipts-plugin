@@ -5,7 +5,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $logo_url = apply_filters( 'bhfe_pdf_receipts_logo_url', BHFE_PDF_Receipts::instance()->get_default_logo_url(), $order );
 $company_name = apply_filters( 'bhfe_pdf_receipts_company_name', get_bloginfo( 'name' ), $order );
-$company_address = apply_filters( 'bhfe_pdf_receipts_company_address', '', $order );
+$company_address = apply_filters(
+    'bhfe_pdf_receipts_company_address',
+    "Beacon Hill Financial Educators, Inc.\n51A Middle Street\nNewburyport, MA 01950\n1-800-588-7039",
+    $order
+);
 
 $billing_address = $order->get_formatted_billing_address();
 $shipping_address = $order->needs_shipping_address() ? $order->get_formatted_shipping_address() : '';
