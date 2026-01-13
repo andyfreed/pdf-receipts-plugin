@@ -7,7 +7,7 @@ $logo_url = apply_filters( 'bhfe_pdf_receipts_logo_url', BHFE_PDF_Receipts::inst
 $company_name = apply_filters( 'bhfe_pdf_receipts_company_name', get_bloginfo( 'name' ), $order );
 $company_address = apply_filters(
     'bhfe_pdf_receipts_company_address',
-    "Beacon Hill Financial Educators, Inc.\n51A Middle Street\nNewburyport, MA 01950\n1-800-588-7039",
+    "Beacon Hill Financial Educators, Inc. 51A Middle Street Newburyport, MA 01950\nwww.bhfe.com 800-588-7039 contact@bhfe.com.",
     $order
 );
 
@@ -258,11 +258,6 @@ if ( ! function_exists( 'bhfe_pdf_receipts_collect_course_numbers' ) ) {
             <?php if ( $logo_url ) : ?>
                 <img src="<?php echo esc_url( $logo_url ); ?>" alt="<?php echo esc_attr( $company_name ); ?>" class="bhfe-receipt__logo" />
             <?php endif; ?>
-            <?php if ( $company_address ) : ?>
-                <div class="bhfe-receipt__company">
-                    <p><?php echo wp_kses_post( nl2br( $company_address ) ); ?></p>
-                </div>
-            <?php endif; ?>
         </header>
 
         <section class="bhfe-receipt__meta">
@@ -374,6 +369,11 @@ if ( ! function_exists( 'bhfe_pdf_receipts_collect_course_numbers' ) ) {
                 </tr>
             </tbody>
         </table>
+        <?php if ( $company_address ) : ?>
+            <footer class="bhfe-receipt__footer">
+                <p><?php echo wp_kses_post( nl2br( $company_address ) ); ?></p>
+            </footer>
+        <?php endif; ?>
     </div>
 </body>
 </html>

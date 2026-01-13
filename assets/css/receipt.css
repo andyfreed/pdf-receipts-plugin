@@ -10,6 +10,7 @@ body {
 
 .bhfe-receipt {
     padding: 28px;
+    padding-bottom: 80px;
     font-size: 13px;
 }
 
@@ -25,6 +26,20 @@ body {
 
 .bhfe-receipt__logo {
     max-width: 212px;
+}
+
+.bhfe-receipt__footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 10px 28px 16px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.bhfe-receipt__footer p {
+    margin: 0;
 }
 
 
